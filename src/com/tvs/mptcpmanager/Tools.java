@@ -18,6 +18,99 @@ import com.tvs.mptcptypes.NetworkInterface;
 public class Tools {
 
 	/**
+	 * Writes a variable in sysctl
+	 * @param var	Variable
+	 * @param val	Value
+	 * @return	true if ok, false if not
+	 */
+	public static boolean WriteSysctl(String var, String val)	{
+		try {
+			String ret = Tools.ExecuteCMD("sysctl -w "+var+"="+val);
+			
+			/**
+			 * sysctl -w should return the same data. Example:
+			 * $ sysctl -w net.ipv4.ip_forward=1
+			 * net.ipv4.ip_forward = 1
+			 */
+			return ret.contentEquals(var+" = "+val);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
+	/**
+	 * Read an sysctl variable
+	 * @param var The variable to read
+	 * @return Variable Value
+	 */
+	public static String ReadSysctl(String var)	{
+		try {
+			String ret = Tools.ExecuteCMD("sysctl "+var);
+			/**
+			 * It should ALWAYS return something like:
+			 * var = value
+			 * Example: net.ipv4.ip_forward = 1
+			 * But just in case, lets make an exception
+			 */
+			return (ret.split("=", 1).length > 1) ? ret.split("=", 1)[1].trim() : ret.trim();
+		} catch (IOException e) {
+			e.printStackTrace();
+			return "";
+		}	
+	}
+	
+	/**
+	 * Gets MPTCP Version
+	 * Example: Stable release v0.89.2
+	 * @return MPTCP Version
+	 */
+	public String GetMPTCPVersion()	{
+		try {
+			String version = ExecuteCMD("cat /var/log/dmesg | grep MPTCP");
+			return version.length() > 22 ? version.substring(22) : "No MPTCP";
+		} catch (IOException e) {
+			return "No MPTCP";
+		}
+	}
+	
+	/**
+	 * Gets a Short String for MPTCP Version
+	 * Example: v0.89.2
+	 * @return MPTCP Version
+	 */
+	public String GetShortMPTCPVersion()	{
+		String version = GetMPTCPVersion();
+		if(version.length() > 14)
+			return version.substring(15);
+		else
+			return version;
+	}
+	
+	/**
+	 * Gets a list of the network interfaces available
+	 * 
+	 * @return String array with devices names
+	 */
+	public static String[] GetNetworkInterfacesList()	{
+		String data;
+		String[] tmp;
+		try {
+			data = ExecuteCMD("for entry in /sys/class/net/*; do echo $entry; done");
+			String[] devs = data.split("\n");
+			for(int i=0;i<devs.length;i++) {
+				tmp = devs[i].split("/");
+				devs[i] = tmp[tmp.length-1];
+			}
+			data = null;
+			tmp = null;
+			return devs;
+		} catch (IOException e) {
+			return null;
+		}
+	}
+	
+	/**
 	 * Updates Network Interface Class with System Calls Data
 	 * 
 	 * @param iface The NetworkInterface Instance to be Updated
