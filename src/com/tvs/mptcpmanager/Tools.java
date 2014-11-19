@@ -30,7 +30,7 @@ public class Tools {
 			iface.NetworkMask 	= GetNetworkMask(dev);
 			iface.Address 		= GetMAC(dev);
 			
-			//|   Receive                                             |  Transmit
+			//|   Receive                                 	            |  Transmit
 			//|bytes packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed
 
 			int[] netdev = GetProcNetDev(dev);

@@ -78,9 +78,9 @@ public class NetworkInterface {
 		RXErrors = 0;
 		RXDrops = 0;
 		RXFifo = 0;
-		RXFrame = 0;
+		RXColls = 0;
 		RXCompressed = 0;
-		RXMulticast = 0;		
+		RXCarrier = 0;		
 	}
 	
 	/**
