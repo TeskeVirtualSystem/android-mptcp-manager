@@ -62,7 +62,7 @@ public class Tools {
 	
 	/**
 	 * Gets MPTCP Version
-	 * Example: Stable release v0.89.2
+	 * <BR>Example: <B>Stable release v0.89.2</B>
 	 * @return MPTCP Version
 	 */
 	public String GetMPTCPVersion()	{
@@ -76,7 +76,7 @@ public class Tools {
 	
 	/**
 	 * Gets a Short String for MPTCP Version
-	 * Example: v0.89.2
+	 * <BR>Example: <B>v0.89.2</B>
 	 * @return MPTCP Version
 	 */
 	public String GetShortMPTCPVersion()	{
@@ -153,7 +153,60 @@ public class Tools {
 	}
 	
 	/**
-	 * Gets a /proc/net/dev entry data
+	 * Returns specified Processor Core Clock
+	 * 
+	 * @param core CoreID
+	 * @return Frequency in Hz
+	 */
+	public static int GetFrequency(int core)	{
+		try {
+			String output = ExecuteCMD("cat /sys/devices/system/cpu/cpu"+core+"/cpufreq/cpuinfo_cur_freq");
+			return Integer.parseInt(output);
+		}catch(Exception e)	{
+			return -1;
+		}	
+	}
+	
+	/**
+	 * Returns Processor Core Average Clock
+	 * 
+	 * <br><b>(Core0F + Core1F ... CoreNF) / NumCores</b>
+	 * @return Average Clock
+	 */
+	public static int GetFrequency()	{
+		try {
+			String output = ExecuteCMD("cat /sys/devices/system/cpu/present");
+			String[] c = output.split("-");	//	This will return [ FirstCore, LastCore ]
+			int firstcore = Integer.parseInt(c[0]),
+				lastcore  = Integer.parseInt(c[1]),
+				numcores  = lastcore-firstcore+1,
+				frequency = 0;
+			for(int i=firstcore;i<=lastcore;i++)	{
+				frequency += GetFrequency(i);
+			}
+			frequency /= numcores;
+			return frequency;
+		}catch(Exception e)	{
+			return -1;
+		}
+	}
+	
+	/**
+	 * Returns the System Temperature
+	 * 
+	 * @return System Temperature
+	 */
+	public static int GetTemperature()	{
+		try {
+			String output = ExecuteCMD("cat /sys/devices/platform/tmu/temperature");
+			return Integer.parseInt(output);
+		}catch(Exception e)	{
+			return -1;
+		}
+	}
+	
+	/**
+	 * Gets a <B>/proc/net/dev</B> entry data
 	 * @param device String array with columns
 	 * @return
 	 */
@@ -176,7 +229,7 @@ public class Tools {
 	}
 	
 	/**
-	 * Returns the ifconfig output field id for device.
+	 * Returns the <B>ifconfig</B> output field id for device.
 	 * 
 	 * @param device The Linux Device Name
 	 * @param id The Field ID

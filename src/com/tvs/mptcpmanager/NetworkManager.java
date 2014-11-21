@@ -2,6 +2,13 @@ package com.tvs.mptcpmanager;
 
 import com.tvs.mptcptypes.NetworkInterface;
 
+
+/**
+ * Network Manager Static Methods
+ * 
+ * This should be used to manage network interfaces and MPTCP
+ * @author Lucas Teske
+ */
 public class NetworkManager {
 	
 	/**
