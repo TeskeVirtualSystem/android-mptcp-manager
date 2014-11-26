@@ -92,4 +92,12 @@ public class NetworkInterface {
 	public void Update()	{
 		Tools.UpdateNetworkInterface(this);
 	}
+	
+	public String toString()	{
+		String ret = "";
+		ret += "IFACE "+Device+"\n";
+		ret += "\tIP: "+IPAddress+" MASK: "+NetworkMask+"\n";
+		ret += "\tMAC: "+Address+" TXBytes: "+TXBytes+" RXBytes: "+RXBytes+"\n";
+		return ret;
+	}
 }

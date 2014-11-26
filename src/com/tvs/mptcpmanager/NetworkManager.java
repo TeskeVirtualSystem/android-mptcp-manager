@@ -42,7 +42,7 @@ public class NetworkManager {
 	public static boolean MPTCP_GetEnabled()	{
 		return Tools.ReadSysctl("net.mptcp.mptcp_enabled").contentEquals("1");
 	}
-	
+
 	/**
 	 * Gets a list of NetworkInterface Objects filled with all network
 	 * interfaces data.
@@ -56,5 +56,24 @@ public class NetworkManager {
 			ifaces[i].Update();
 		}
 		return ifaces;
+	}
+
+	/**
+	 * Gets a list of NetworkInterface Objects filled with all network
+	 * interfaces data.
+	 * @param ifaces NetworkInterface Array to be updated
+	 * @return NetworkInterface Array
+	 */
+	public static NetworkInterface[] GetInterfaces(NetworkInterface[] ifaces)	{
+		String[] devs = Tools.GetNetworkInterfacesList();
+		if(devs.length == ifaces.length)	{
+			for(int i=0;i<ifaces.length;i++)	{
+				ifaces[i].Update();
+			}		
+			return ifaces;
+		}else{
+			ifaces = GetInterfaces();
+			return ifaces;
+		}
 	}
 }

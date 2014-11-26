@@ -5,6 +5,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.tvs.mptcptypes.NetworkInterface;
 
@@ -33,7 +35,7 @@ public class Tools {
 			 * net.ipv4.ip_forward = 1
 			 */
 			return ret.contentEquals(var+" = "+val);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			return false;
 		}
@@ -54,7 +56,7 @@ public class Tools {
 			 * But just in case, lets make an exception
 			 */
 			return (ret.split("=", 1).length > 1) ? ret.split("=", 1)[1].trim() : ret.trim();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			return "";
 		}	
@@ -69,7 +71,7 @@ public class Tools {
 		try {
 			String version = ExecuteCMD("cat /var/log/dmesg | grep MPTCP");
 			return version.length() > 22 ? version.substring(22) : "No MPTCP";
-		} catch (IOException e) {
+		} catch (Exception e) {
 			return "No MPTCP";
 		}
 	}
@@ -96,16 +98,24 @@ public class Tools {
 		String data;
 		String[] tmp;
 		try {
-			data = ExecuteCMD("for entry in /sys/class/net/*; do echo $entry; done");
+			data = ExecuteCMD("getifaces");
 			String[] devs = data.split("\n");
+			List<String> dev_list = new ArrayList<String>();
 			for(int i=0;i<devs.length;i++) {
 				tmp = devs[i].split("/");
 				devs[i] = tmp[tmp.length-1];
+				if(CheckNetworkDevice(devs[i]))
+					dev_list.add(devs[i]);
+			}
+			devs = new String[dev_list.size()];
+			for(int i=0;i<dev_list.size();i++)	{
+				devs[i] = dev_list.get(i);
 			}
 			data = null;
 			tmp = null;
 			return devs;
-		} catch (IOException e) {
+		} catch (Exception e) {
+			e.printStackTrace();
 			return null;
 		}
 	}
@@ -127,7 +137,7 @@ public class Tools {
 			//|bytes packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed
 
 			int[] netdev = GetProcNetDev(dev);
-			if(netdev != null && netdev.length == 16)	{
+			if(netdev != null && netdev.length >= 16)	{
 				iface.TXBytes 		= netdev[0];
 				iface.TXPackets 	= netdev[1];
 				iface.TXErrors 		= netdev[2];
@@ -214,16 +224,17 @@ public class Tools {
 		//|   Receive                                             |  Transmit
 		//|bytes packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed
 		try {
-			String output = ExecuteCMD("cat /proc/net/dev | grep "+device+" | cut -d: -f2");
-			String[] vals = output.split("\\s+");
+			String output = ExecuteCMD(new String[]{"getprocnetdev",device});
+			String[] vals = output.trim().split("\\s+");
+	
 			int[] data = new int[vals.length];
 			for(int i=0;i<vals.length;i++)	{
-				data[i] = Integer.parseInt(vals[i]);
+				if(!vals[i].isEmpty())	
+					data[i] = Integer.parseInt(vals[i]);
 			}
-			vals = null;
-			output = null;
 			return data;
-		} catch (IOException e) {
+		} catch (Exception e) {
+			e.printStackTrace();
 			return null;
 		}		
 	}
@@ -237,9 +248,9 @@ public class Tools {
 	 */
 	private static String GetIFconfigField(String device, int id)	{
 		try {
-			String output = ExecuteCMD("busybox ifconfig "+device+" | grep \"inet addr\" | awk -F: '{print $"+id+"}' | awk '{print $1}'");
+			String output = ExecuteCMD(new String[]{"getifconfigfield",device, String.valueOf(id)});
 			return output;
-		} catch (IOException e) {
+		} catch (Exception e) {
 			return null;
 		}		
 	}
@@ -253,7 +264,8 @@ public class Tools {
 	public static String GetMAC(String device)	{
 		try {
 			String mac = ReadFile("/sys/class/net/"+device+"/address");
-			return mac;
+			mac = mac.replaceAll("\n", "").replaceAll("\r", "").trim();
+			return mac.isEmpty() ? "FF:FF:FF:FF:FF:FF" : mac;
 		} catch (IOException e) {
 			return "FF:FF:FF:FF:FF:FF";
 		}
@@ -267,7 +279,8 @@ public class Tools {
 	 */
 	public static String GetNetworkMask(String device)	{
 		String output = GetIFconfigField(device, 4);
-		return output == null ? "255.0.0.0" : output;
+		output = output.replaceAll("\n", "").replaceAll("\r", "").trim();
+		return output == null || output.isEmpty() ? "255.0.0.0" : output;
 	}
 	
 
@@ -279,7 +292,8 @@ public class Tools {
 	 */
 	public static String GetBroadcast(String device)	{
 		String output = GetIFconfigField(device, 3);
-		return output == null ? "0.0.0.0" : output;
+		output = output.replaceAll("\n", "").replaceAll("\r", "").trim();
+		return output == null || output.isEmpty()  ? "0.0.0.0" : output;
 	}
 	
 	/**
@@ -290,7 +304,8 @@ public class Tools {
 	 */
 	public static String GetIPAddress(String device)	{
 		String output = GetIFconfigField(device, 2);
-		return output == null ? "0.0.0.0" : output;
+		output = output.replaceAll("\n", "").replaceAll("\r", "").trim();
+		return output == null || output.isEmpty()  ? "0.0.0.0" : output;
 	}
 	
 	/**
@@ -300,11 +315,51 @@ public class Tools {
 	 */
 	public static boolean CheckNetworkDevice(String device)	{
 		try {
-			String output = ExecuteCMD("if [ -e /sys/class/net/"+device+" ] ; then echo true; else echo false; fi");
-			return output.equalsIgnoreCase("true");
-		} catch (IOException e) {
+			String output = ExecuteCMD(new String[]{"checkiface",device});
+			return output.replaceAll("\n", "").equalsIgnoreCase("true");
+		} catch (Exception e) {
 			return false;
 		}
+	}
+	
+
+	/**
+	 * Executes an Shell Command and returns the output
+	 * 
+	 * @param cmd	The Command
+	 * @return Output String
+	 * @throws IOException
+	 */
+	public static String ExecuteCMD(String[] cmd) throws Exception	{
+		StringBuilder data = new StringBuilder();
+	    BufferedReader  buffered_reader=null;
+	    try {
+	    	Runtime.getRuntime().exec("su");
+	    	String[] fullcmd = new String[2+cmd.length];
+	    	fullcmd[0] = "/bin/sh";
+	    	fullcmd[1] = "-c";
+	    	for(int i=0;i<cmd.length;i++)
+	    		fullcmd[i+2] = cmd[i];
+	    	Process p = Runtime.getRuntime().exec(cmd);
+	        InputStream istream = p.getInputStream();
+	        InputStreamReader istream_reader = new InputStreamReader(istream);
+	        buffered_reader = new BufferedReader(istream_reader);
+	        String line;
+			while ((line = buffered_reader.readLine()) != null) {
+				data.append(line+"\n");
+			}
+			p.waitFor();
+		} catch (Exception e) {
+			throw(e);
+		} finally {
+			try {
+				if (buffered_reader != null)
+					buffered_reader.close();
+			} catch (IOException ex) {
+				throw(ex);
+			}
+		}
+		return data.toString();   		
 	}
 	
 	/**
@@ -314,20 +369,21 @@ public class Tools {
 	 * @return Output String
 	 * @throws IOException
 	 */
-	public static String ExecuteCMD(String cmd) throws IOException	{
+	public static String ExecuteCMD(String cmd) throws Exception	{
 		StringBuilder data = new StringBuilder();
 	    BufferedReader  buffered_reader=null;
-	    try 
-	    {
-	        InputStream istream = Runtime.getRuntime().exec(cmd).getInputStream();
+	    try {
+	    	Runtime.getRuntime().exec("su");
+	    	Process p = Runtime.getRuntime().exec("/bin/sh -c "+cmd);
+	        InputStream istream = p.getInputStream();
 	        InputStreamReader istream_reader = new InputStreamReader(istream);
 	        buffered_reader = new BufferedReader(istream_reader);
 	        String line;
-
 			while ((line = buffered_reader.readLine()) != null) {
-				data.append(line);
+				data.append(line+"\n");
 			}
-		} catch (IOException e) {
+			p.waitFor();
+		} catch (Exception e) {
 			throw(e);
 		} finally {
 			try {

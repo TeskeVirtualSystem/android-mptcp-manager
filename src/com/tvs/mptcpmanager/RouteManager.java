@@ -41,7 +41,7 @@ public class RouteManager {
 	public static void AddNetworkToTable(String Interface, String NetworkAddress, String Subnet)	{
 		try {
 			CallIP("route add table "+Interface+" to "+NetworkAddress+"/"+Subnet+" dev "+Interface+" scope link");
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
@@ -49,12 +49,12 @@ public class RouteManager {
 	public static void AddNetworkGatewayToTable(String Interface, String Gateway)	{
 		try {
 			CallIP("route add table "+Interface+" default via "+Gateway+" dev "+Interface);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}		
 	}
 	
-	public static String CallIP(String args) throws IOException	{
+	public static String CallIP(String args) throws Exception	{
 		return Tools.ExecuteCMD("ip "+args);
 	}
 }
