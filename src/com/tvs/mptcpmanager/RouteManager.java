@@ -1,7 +1,5 @@
 package com.tvs.mptcpmanager;
 
-import java.io.IOException;
-
 /**
  * Linux Route Manager using shell IP commands
  * 
