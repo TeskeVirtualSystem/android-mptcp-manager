@@ -37,6 +37,14 @@ public class RouteManager {
 		}
 	}
 	
+	public static void AddDefaultHop(String address, String iface)	{
+		try {
+			CallIP(new String[]{"route","add","default","scope","global","nexthop","via",address,"dev",iface});
+		} catch(Exception e)	{
+			e.printStackTrace();
+		}
+	}
+	
 	/**
 	 * Adds Network to a Route Table
 	 * 
@@ -46,7 +54,7 @@ public class RouteManager {
 	 */
 	public static void AddNetworkToTable(String Interface, String NetworkAddress, String Subnet)	{
 		try {
-			CallIP("route add table "+Interface+" to "+NetworkAddress+"/"+Subnet+" dev "+Interface+" scope link");
+			CallIP(new String[]{"route","add","table",Interface,"to",NetworkAddress+"/"+Subnet,"dev",Interface,"scope","link"});
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -60,7 +68,7 @@ public class RouteManager {
 	 */
 	public static void AddNetworkGatewayToTable(String Interface, String Gateway)	{
 		try {
-			CallIP("route add table "+Interface+" default via "+Gateway+" dev "+Interface);
+			CallIP(new String[]{"route","add","table",Interface,"default","via",Gateway,"dev",Interface});
 		} catch (Exception e) {
 			e.printStackTrace();
 		}		
@@ -100,6 +108,19 @@ public class RouteManager {
 	}
 	
 	/**
+	 * Cleans an specific routing table
+	 * 
+	 * @param table The routing table name or number
+	 */
+	public static void CleanRouteTable(String table)	{
+		try {
+			CallIP(new String[] {"route","flush","table",table});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
 	 * Calls ip command
 	 * @param args Arguments
 	 * @return String Output
@@ -107,5 +128,19 @@ public class RouteManager {
 	 */
 	public static String CallIP(String args) throws Exception	{
 		return Tools.ExecuteCMD("ip "+args);
+	}
+	
+	/**
+	 * Calls ip command
+	 * @param args Arguments
+	 * @return String Output
+	 * @throws Exception 
+	 */
+	public static String CallIP(String[] args) throws Exception	{
+		String[] tmp = new String[args.length+1];
+		tmp[0] = "ip";
+		for(int i=0;i<args.length;i++)
+			tmp[i] = args[i-1];
+		return Tools.ExecuteCMD(tmp);
 	}
 }
