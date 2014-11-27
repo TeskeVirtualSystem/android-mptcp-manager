@@ -140,7 +140,7 @@ public class RouteManager {
 		String[] tmp = new String[args.length+1];
 		tmp[0] = "ip";
 		for(int i=0;i<args.length;i++)
-			tmp[i] = args[i-1];
+			tmp[i+1] = args[i];
 		return Tools.ExecuteCMD(tmp);
 	}
 }

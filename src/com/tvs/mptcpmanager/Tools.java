@@ -8,6 +8,8 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.util.Log;
+
 import com.tvs.mptcptypes.NetworkInterface;
 
 /**
@@ -444,4 +446,44 @@ public class Tools {
     	}
     }
 	
+    /**
+     * Calculates Subnet ID using Network Mask
+     * 
+     * @param NetworkMask Network Mask
+     * @return Subnet ID
+     */
+    public static int GetMaskID(String NetworkMask)	{
+    	String[] splitted = NetworkMask.split("\\.");
+    	if(splitted.length != 4)
+    		return -1;
+
+    	int count = 0;
+    	for(int i=0;i<4;i++)	
+    		count +=Integer.bitCount(Integer.parseInt(splitted[i]));
+    	
+    	return count;
+    }
+    
+    /**
+     * Calculates the Network Address having one IP Address from it and the Network Mask
+     * @param IP One IP Address. <B>Ex:</B> 10.0.5.12
+     * @param NetworkMask The NetworkMask <B>Ex:</B> 255.255.255.0
+     * @return
+     */
+    public static String GetNetworkAddress(String IP, String NetworkMask)	{
+    	String[] ipspllited = IP.split("\\.");
+    	String[] maskspllited = NetworkMask.split("\\.");
+    	StringBuilder NetAddr = new StringBuilder();
+    	
+    	if(ipspllited.length != 4 || maskspllited.length != 4)
+    		return "0.0.0.0";
+    	
+    	for(int i=0;i<4;i++)	{
+    		NetAddr.append(Integer.parseInt(ipspllited[i]) & Integer.parseInt(maskspllited[i]));
+    		if(i!=3)
+    			NetAddr.append(".");
+    	}
+    	
+    	return NetAddr.toString();
+    }
 }
