@@ -16,6 +16,7 @@ package com.tvs.mptcpmanager;
  *  <BR> On Interface up:
  *  <BR> ip route add table $IFACE to $NETNUM/$SUBNET dev $IFACE scope link
  *  <BR> ip route add table $IFACE to via $GATEWAY dev $IFACE
+ *  
  * @author Lucas Teske
  *
  */
@@ -36,6 +37,13 @@ public class RouteManager {
 		}
 	}
 	
+	/**
+	 * Adds Network to a Route Table
+	 * 
+	 * @param Interface	Network Interface
+	 * @param NetworkAddress Network Address
+	 * @param Subnet	Sub Network Address
+	 */
 	public static void AddNetworkToTable(String Interface, String NetworkAddress, String Subnet)	{
 		try {
 			CallIP("route add table "+Interface+" to "+NetworkAddress+"/"+Subnet+" dev "+Interface+" scope link");
@@ -44,6 +52,12 @@ public class RouteManager {
 		}
 	}
 	
+	/**
+	 * Add Gateway to Route Table
+	 * 
+	 * @param Interface	Network Interface
+	 * @param Gateway Network Gateway
+	 */
 	public static void AddNetworkGatewayToTable(String Interface, String Gateway)	{
 		try {
 			CallIP("route add table "+Interface+" default via "+Gateway+" dev "+Interface);
@@ -52,6 +66,45 @@ public class RouteManager {
 		}		
 	}
 	
+	/**
+	 * Clear the Gateway Routes
+	 */
+	public static void ClearRoutes()	{
+		try {
+			CallIP("route del 0/0");
+			CallIP("route del 0/0");
+			CallIP("route del 0/0");
+			CallIP("route del 0/0");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}				
+	}
+	
+	/**
+	 * Gets an interface Gateway Address
+	 * @param iface Network Address
+	 * @return Gateway Address
+	 */
+	public static String GetIFaceGateway(String iface)	{
+		return Tools.GetProp("dhcp."+iface+".gateway");
+	}
+
+	/**
+	 * Gets an interface IP Address
+	 * 
+	 * @param iface Network Address
+	 * @return IP Address
+	 */
+	public static String GetIFaceIP(String iface)	{
+		return Tools.GetProp("dhcp."+iface+".ipaddress");
+	}
+	
+	/**
+	 * Calls ip command
+	 * @param args Arguments
+	 * @return String Output
+	 * @throws Exception 
+	 */
 	public static String CallIP(String args) throws Exception	{
 		return Tools.ExecuteCMD("ip "+args);
 	}

@@ -373,7 +373,7 @@ public class Tools {
 		StringBuilder data = new StringBuilder();
 	    BufferedReader  buffered_reader=null;
 	    try {
-	    	Runtime.getRuntime().exec("su");
+	    	//Runtime.getRuntime().exec("su");
 	    	Process p = Runtime.getRuntime().exec("/bin/sh -c "+cmd);
 	        InputStream istream = p.getInputStream();
 	        InputStreamReader istream_reader = new InputStreamReader(istream);
@@ -426,4 +426,22 @@ public class Tools {
 		}
 		return data.toString();
 	}
+	
+
+    
+    /**
+     * Calls getprop on android shell and return system properties
+     * 
+     * @param property
+     * @return property value
+     */
+    public static String GetProp(String property)	{
+    	try{
+    		return Tools.ExecuteCMD(new String[] {"getprop",property });
+    	}catch(Exception e)	{
+    		e.printStackTrace();
+    		return "";
+    	}
+    }
+	
 }
