@@ -1,5 +1,8 @@
 package com.tvs.mptcpmanager;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.tvs.mptcptypes.NetworkInterface;
 
 
@@ -57,6 +60,22 @@ public class NetworkManager {
 		}
 		return ifaces;
 	}
+	
+	/**
+	 * Gets a list of NetworkInterface Objects filled with all network
+	 * interfaces data.
+	 * @return NetworkInterface List
+	 */
+	public static List<NetworkInterface> GetInterfacesList()	{
+		String[] devs = Tools.GetNetworkInterfacesList();
+		NetworkInterface[] ifaces_array = new NetworkInterface[devs.length];
+		for(int i=0;i<devs.length;i++)	{
+			ifaces_array[i] = new NetworkInterface(devs[i]);
+			ifaces_array[i].Update();
+		}
+		List<NetworkInterface> ifaces = new ArrayList<NetworkInterface>(ifaces_array.length);
+		return ifaces;
+	}
 
 	/**
 	 * Gets a list of NetworkInterface Objects filled with all network
@@ -73,6 +92,25 @@ public class NetworkManager {
 			return ifaces;
 		}else{
 			ifaces = GetInterfaces();
+			return ifaces;
+		}
+	}
+	
+
+	/**
+	 * Gets a list of NetworkInterface Objects filled with all network
+	 * interfaces data.
+	 * @param ifaces NetworkInterface Array to be updated
+	 * @return NetworkInterface Array
+	 */
+	public static List<NetworkInterface> GetInterfacesList(List<NetworkInterface> ifaces)	{
+		String[] devs = Tools.GetNetworkInterfacesList();
+		if(devs.length == ifaces.size())	{
+			for(NetworkInterface net : ifaces)
+				net.Update();
+			return ifaces;
+		}else{
+			ifaces = GetInterfacesList();
 			return ifaces;
 		}
 	}

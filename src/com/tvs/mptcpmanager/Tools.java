@@ -8,8 +8,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.util.Log;
-
 import com.tvs.mptcptypes.NetworkInterface;
 
 /**
@@ -336,7 +334,7 @@ public class Tools {
 		StringBuilder data = new StringBuilder();
 	    BufferedReader  buffered_reader=null;
 	    try {
-	    	Runtime.getRuntime().exec("su");
+	    	//Runtime.getRuntime().exec("su");
 	    	String[] fullcmd = new String[2+cmd.length];
 	    	fullcmd[0] = "/bin/sh";
 	    	fullcmd[1] = "-c";
@@ -453,7 +451,7 @@ public class Tools {
      * @return Subnet ID
      */
     public static int GetMaskID(String NetworkMask)	{
-    	String[] splitted = NetworkMask.split("\\.");
+    	String[] splitted = NetworkMask.replaceAll("\n", "").replaceAll("\r", "").split("\\.");
     	if(splitted.length != 4)
     		return -1;
 
@@ -471,8 +469,8 @@ public class Tools {
      * @return
      */
     public static String GetNetworkAddress(String IP, String NetworkMask)	{
-    	String[] ipspllited = IP.split("\\.");
-    	String[] maskspllited = NetworkMask.split("\\.");
+    	String[] ipspllited = IP.replaceAll("\n", "").replaceAll("\r", "").trim().split("\\.");
+    	String[] maskspllited = NetworkMask.replaceAll("\n", "").replaceAll("\r", "").trim().split("\\.");
     	StringBuilder NetAddr = new StringBuilder();
     	
     	if(ipspllited.length != 4 || maskspllited.length != 4)
