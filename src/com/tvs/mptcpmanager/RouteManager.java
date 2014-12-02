@@ -37,7 +37,7 @@ public class RouteManager {
 	
 	public static void AddDefaultHop(String address, String iface) {
 		try {
-			CallIP(new String[] { "route", "add", "default", "scope", "global", "nexthop", "via", address, "dev", iface });
+			CallIP("route add default scope global nexthop via " + address + " dev " + iface);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -57,7 +57,7 @@ public class RouteManager {
 	 */
 	public static void AddNetworkToTable(String Table, String Interface, String NetworkAddress, String Subnet) {
 		try {
-			CallIP(new String[] { "route", "add", "table", Table, "to", NetworkAddress + "/" + Subnet, "dev", Interface, "scope", "link" });
+			CallIP("route add table " + Table + " to " + NetworkAddress + "/" + Subnet + " dev " + Interface + " scope link");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -75,7 +75,7 @@ public class RouteManager {
 	 */
 	public static void AddNetworkGatewayToTable(String Table, String Interface, String Gateway) {
 		try {
-			CallIP(new String[] { "route", "add", "table", Table, "default", "via", Gateway, "dev", Interface });
+			CallIP("route add table" + Table + " default via " + Gateway + " dev " + Interface );
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -125,7 +125,7 @@ public class RouteManager {
 	 */
 	public static void CleanRouteTable(String table) {
 		try {
-			CallIP(new String[] { "route", "flush", "table", table });
+			CallIP("route flush table " + table );
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -140,7 +140,7 @@ public class RouteManager {
 	 * @throws Exception
 	 */
 	public static String CallIP(String args) throws Exception {
-		return Tools.ExecuteCMD("ip " + args);
+		return Tools.ExecuteCMD_SU("ip " + args);
 	}
 	
 	/**
