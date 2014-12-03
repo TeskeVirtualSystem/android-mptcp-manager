@@ -494,7 +494,7 @@ public class Tools {
 	 */
 	public static String GetProp(String property) {
 		try {
-			return Tools.ExecuteCMD(new String[] { "getprop", property });
+			return Tools.ExecuteCMD(new String[] { "getprop", property }).replaceAll("\n", "").replaceAll("\r", "").trim();
 		} catch (Exception e) {
 			e.printStackTrace();
 			return "";

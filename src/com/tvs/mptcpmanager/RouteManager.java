@@ -1,5 +1,7 @@
 package com.tvs.mptcpmanager;
 
+import android.util.Log;
+
 /**
  * Linux Route Manager using shell IP commands
  * 
@@ -75,7 +77,56 @@ public class RouteManager {
 	 */
 	public static void AddNetworkGatewayToTable(String Table, String Interface, String Gateway) {
 		try {
-			CallIP("route add table" + Table + " default via " + Gateway + " dev " + Interface );
+			CallIP("route add table " + Table + " default via " + Gateway + " dev " + Interface);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Adds an IP Rule Table
+	 * 
+	 * @param Table
+	 *          The Table
+	 * @param IP
+	 *          The IP Address
+	 */
+	public static void AddRule(String Table, String IP) {
+		try {
+			CallIP("rule add from " + IP + " table " + Table);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Delete an IP Rule Table IP
+	 * 
+	 * @param Table
+	 *          The Table
+	 * @param IP
+	 *          The IP Address
+	 */
+	public static void DelRule(String Table, String IP) {
+		try {
+			CallIP("rule del from " + IP + " table " + Table);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Delete an IP Rule Table Entry
+	 * 
+	 * @param Table
+	 */
+	public static void DelRule(String Table) {
+		try {
+			// 4 times because it only removes one.
+			CallIP("rule del lookup " + Table);
+			CallIP("rule del lookup " + Table);
+			CallIP("rule del lookup " + Table);
+			CallIP("rule del lookup " + Table);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -86,10 +137,27 @@ public class RouteManager {
 	 */
 	public static void ClearRoutes() {
 		try {
+			// 4 times because it only removes one.
 			CallIP("route del 0/0");
 			CallIP("route del 0/0");
 			CallIP("route del 0/0");
 			CallIP("route del 0/0");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Tries to remove a default gateway from the route table.
+	 * 
+	 * @param gateway
+	 *          The Gateway Address
+	 * @param dev
+	 *          The Device
+	 */
+	public static void RemoveGateway(String gateway, String dev) {
+		try {
+			CallIP("route del default via " + gateway + " dev " + dev);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -125,7 +193,7 @@ public class RouteManager {
 	 */
 	public static void CleanRouteTable(String table) {
 		try {
-			CallIP("route flush table " + table );
+			CallIP("route flush table " + table);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -140,6 +208,7 @@ public class RouteManager {
 	 * @throws Exception
 	 */
 	public static String CallIP(String args) throws Exception {
+		Log.d("RouteManager::CallIP", "ip " + args);
 		return Tools.ExecuteCMD_SU("ip " + args);
 	}
 	
