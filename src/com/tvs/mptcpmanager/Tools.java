@@ -197,7 +197,7 @@ public class Tools {
 		try {
 			String output = ExecuteCMD("cat /sys/devices/system/cpu/present");
 			String[] c = output.split("-"); // This will return [ FirstCore, LastCore
-																			// ]
+			                                // ]
 			int firstcore = Integer.parseInt(c[0]), lastcore = Integer.parseInt(c[1]), numcores = lastcore - firstcore + 1, frequency = 0;
 			for (int i = firstcore; i <= lastcore; i++) {
 				frequency += GetFrequency(i);
@@ -518,6 +518,22 @@ public class Tools {
 			count += Integer.bitCount(Integer.parseInt(splitted[i]));
 		
 		return count;
+	}
+	
+	/**
+	 * Does an ping to the <b>address</b> using interface <b>iface</b>
+	 * 
+	 * @param address Target Address
+	 * @param iface Interface to use
+	 * @return True if goes OK
+	 */
+	public static boolean CheckConnection(String address, String iface) {
+		try {
+			return Tools.ExecuteCMD(new String[] { "testping", address, iface }).contains("true");
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 	
 	/**
