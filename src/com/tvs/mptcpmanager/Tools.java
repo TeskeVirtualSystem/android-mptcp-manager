@@ -372,8 +372,8 @@ public class Tools {
 			try {
 				if (buffered_reader != null)
 					buffered_reader.close();
-			} catch (IOException ex) {
-				throw (ex);
+			} catch (Exception ex) {
+				// Do Nothing
 			}
 		}
 		return data.toString();
@@ -407,8 +407,8 @@ public class Tools {
 			try {
 				if (buffered_reader != null)
 					buffered_reader.close();
-			} catch (IOException ex) {
-				throw (ex);
+			} catch (Exception ex) {
+				// Do Nothing
 			}
 		}
 		return data.toString();
@@ -448,8 +448,8 @@ public class Tools {
 			try {
 				if (buffered_reader != null)
 					buffered_reader.close();
-			} catch (IOException ex) {
-				throw (ex);
+			} catch (Exception ex) {
+				//	Do Nothing
 			}
 		}
 		return data.toString();
@@ -479,8 +479,8 @@ public class Tools {
 			try {
 				if (buffered_reader != null)
 					buffered_reader.close();
-			} catch (IOException ex) {
-				throw (ex);
+			} catch (Exception ex) {
+				//	Do Nothing
 			}
 		}
 		return data.toString();
